@@ -12,7 +12,7 @@ import {Buffer} from "buffer";
 import keccak256 from "keccak256";
 import {promises} from "dns";
 import {isAwaitExpression} from "tsutils";
-export class AssetMintingLib {
+export class AssetMintingLibs {
     packageAddress: string;
     provider: JsonRpcProvider;
 

@@ -6,15 +6,19 @@ import {
     TransactionBlock,
     Transactions,
     Keypair,
-    SuiTransactionBlockResponse
+    SuiTransactionBlockResponse,
+    devnetConnection,
+    testnetConnection
 } from "@mysten/sui.js";
 import {Buffer} from "buffer";
 import keccak256 from "keccak256";
 
-import {AssetMintingLib} from "./asset-minting-lib";
+// import {AssetMintingLib} from "./asset-minting-lib";
+
+import {AssetMintingLib} from "@mirrorworld/sui.assetminting";
 
 
-const provider: JsonRpcProvider = new JsonRpcProvider(localnetConnection);
+const provider: JsonRpcProvider = new JsonRpcProvider(testnetConnection);
 
 const OwnerKey = "ACv2RzNDh2DtTkpfooEMM7TPKS3hGGX/zM5i3zI+O7un";
 const CollectionCreateAuthorityKey = "7lk9LqUwWYGmahvHGzFu86CaAAlzpnQom/lF1KEzG8s=";
@@ -53,15 +57,15 @@ let assetMintingLib: AssetMintingLib;
 (async () => {
     console.log("Hello");
 
-    const packageAddress = "0x8aa6fe85a886d0ae80d36d382088d64edbb1e1c294c4a90cc07b6cb694b25be5";
+    const packageAddress = "0x4b8563ccf44aef795f0c51780df8e00d5e15c115f263151ceb0c8fae5aeeb892";
 
-    const adminCapAddress = "0xb5550af1ba248248a75eac73215e56e0873541784673d28aa8187bb090868d80";
+    const adminCapAddress = "0x4223fd3778a843b020f870ea5da13ad9e8de04fa7c99bf2f30cf26ac2e5c47da";
 
-    const collectionCreateAuthorityCap = "0x9a203737ade6c6c1c3e281aef5d234a5c7d4e91761761181cb491098f6678afb";
+    const collectionCreateAuthorityCap = "0x6cee69491cb9f15562999c7914310eccc6665790d670a9f770c2268ebcd1cd88";
 
-    const mintCapAddress = "0xe867985952e11bdecda796552809179cafdaf6492602fb938b6d3daaefe93032";
+    const mintCapAddress = "0xc4b4f84c9f052e5c476105822b70f8f6789424081b1a1079cdaf1aef8cf382e2";
 
-    const collectionConfigAddress = "0xe4ad707d237174db79bcded835c9797fc836f711a76559b9964677ec573a5370";
+    const collectionConfigAddress = "0x38540ab1e48832afbaafc2f1c04210833cef93315eaddd3cc1e250260427772b";
 
     const nftImageUrl = "https://zwyk5xu3kq2sbn6hxhiw4txnbu6bhb5j5bnj73m7a4jees36uuda.arweave.net/zbCu3ptUNSC3x7nRbk7tDTwTh6noWp_tnwcSQkt-pQY";
 
@@ -100,8 +104,8 @@ let assetMintingLib: AssetMintingLib;
     //
     //     ]);
 
-    await mintNft(NFTMintCapKeypairSigner, FeePayerSigner, mintCapAddress, collectionConfigAddress, UserKeypair.getPublicKey().toSuiAddress(),
-        "BNFT#2", "BNFT DESCRIPTION", nftImageUrl, ["age", "color"], ["2", "red"], [salt], [sigHash], packageAddress);
+    // await mintNft(NFTMintCapKeypairSigner, FeePayerSigner, mintCapAddress, collectionConfigAddress, UserKeypair.getPublicKey().toSuiAddress(),
+    //     "BNFT#2", "BNFT DESCRIPTION", nftImageUrl, ["age", "color"], ["2", "red"], [salt], [sigHash], packageAddress);
 
 })();
 
@@ -113,7 +117,7 @@ async function transferObject(signer: RawSigner, objectId: string, newOwner: str
         tx.pure(newOwner)
     );
 
-    const result = await signer.signAndExecuteTransactionBlock({transactionBlock: tx});
+    const result: SuiTransactionBlockResponse = await signer.signAndExecuteTransactionBlock({transactionBlock: tx});
     console.log({result});
 }
 
@@ -143,6 +147,8 @@ async function createCollection(collectionCreateAuthoritySigner: RawSigner, feeS
         nftMintCapOwnerAddress, collectionName, collectionDescription, creatorList, (await collectionCreateAuthoritySigner.getAddress()), (await feeSigner.getAddress()));
     const collectionCreateSig = await assetMintingLib.signTransaction(tx, collectionCreateAuthoritySigner);
 
+    // tx.setGasBudget(1000000000000);
+
     const feeSig = await assetMintingLib.signTransaction(tx, feeSigner);
 
     const result = await assetMintingLib.executeTransactionBlock(tx, [collectionCreateSig, feeSig]);
@@ -152,39 +158,18 @@ async function createCollection(collectionCreateAuthoritySigner: RawSigner, feeS
 
 async function mintNft(nftMintCapSigner: RawSigner, feeSigner: RawSigner, mintCapAddress: string, collectionConfigAddress: string, nftReceiverAddress: string,
                        nftName: string, nftDescription: string, nftUrl: string, aKeys: any, aValues: any, salt: any, signature: any, packageAddress: string) {
-    const tx = new TransactionBlock();
 
-    tx.add(Transactions.MoveCall({
-        target: `${packageAddress}::asset_minting::mint_nft`,
-        arguments: [
-            tx.pure(mintCapAddress),
-            tx.pure(collectionConfigAddress),
-            tx.pure(nftReceiverAddress),
-            tx.pure(nftName),
-            tx.pure(nftDescription),
-            tx.pure(nftUrl),
-            tx.pure(aKeys),
-            tx.pure(aValues),
-            tx.pure(salt),
-            tx.pure(signature),
-        ]
-    }));
 
-    tx.setSender((await nftMintCapSigner.getAddress()).toString());
-    tx.setGasOwner((await feeSigner.getAddress()).toString());
+    const tx = await assetMintingLib.mintNftTransaction(mintCapAddress, collectionConfigAddress, nftReceiverAddress, nftName, nftDescription, nftUrl, aKeys, aKeys, salt, signature,
+        await nftMintCapSigner.getAddress(), await feeSigner.getAddress())
 
-    tx.setGasBudget(500000000);
+    const nftMintCapSig = await assetMintingLib.signTransaction(tx, nftMintCapSigner);
 
-    const adminSig = await nftMintCapSigner.signTransactionBlock({transactionBlock: tx});
+    // tx.setGasBudget(1000000000000);
 
-    const feeSig = await feeSigner.signTransactionBlock({transactionBlock: tx});
+    const feeSig = await assetMintingLib.signTransaction(tx, feeSigner);
 
-    const result = await provider.executeTransactionBlock({
-        transactionBlock: adminSig.transactionBlockBytes, signature: [
-            adminSig.signature,
-            feeSig.signature
-        ]
-    });
+    const result = await assetMintingLib.executeTransactionBlock(tx, [nftMintCapSig, feeSig]);
 
     console.log({result});
 }

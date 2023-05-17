@@ -18,8 +18,8 @@
     "typescript": "^4.6.3"
   },
   "dependencies": {
-    "@mysten/sui.js": "0.32.1",
+    "@mysten/sui.js": "0.34.0",
     "keccak256": "1.0.6",
-    "@usemirrorworld/sui.assetminting": "0.1.4"
+    "@mirrorworld/sui.assetminting": "0.1.7"
   }
 }
