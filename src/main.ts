@@ -13,13 +13,9 @@ import {
 import {Buffer} from "buffer";
 import keccak256 from "keccak256";
 
-// import {AssetMintingLib} from "./asset-minting-lib";
-
 import {AssetMintingLib} from "@mirrorworld/sui.assetminting";
 
-
 const provider: JsonRpcProvider = new JsonRpcProvider(testnetConnection);
-
 const OwnerKey = "ACv2RzNDh2DtTkpfooEMM7TPKS3hGGX/zM5i3zI+O7un";
 const CollectionCreateAuthorityKey = "7lk9LqUwWYGmahvHGzFu86CaAAlzpnQom/lF1KEzG8s=";
 const NFTMintCapKey = "YUotnE6Ao7gmsqTVySL6QFJdIsltfggILipDFb2qIFQ=";
@@ -57,15 +53,18 @@ let assetMintingLib: AssetMintingLib;
 (async () => {
     console.log("Hello");
 
-    const packageAddress = "0x4b8563ccf44aef795f0c51780df8e00d5e15c115f263151ceb0c8fae5aeeb892";
+    const assetMintingPackageAddress = "0x4b8563ccf44aef795f0c51780df8e00d5e15c115f263151ceb0c8fae5aeeb892";
+    const assetMintingPublishedAtAddress = "0x4b8563ccf44aef795f0c51780df8e00d5e15c115f263151ceb0c8fae5aeeb892";
+    const obNftProtocolPackageAddress = "0x6feec90ad98cf6343ec5dc319d5c713bf7fa5fc06a7d2bac4e0c008ad2710c6f";
+    const obNftProtocolPublishedAtAddress = "0x6feec90ad98cf6343ec5dc319d5c713bf7fa5fc06a7d2bac4e0c008ad2710c6f";
 
     const adminCapAddress = "0x4223fd3778a843b020f870ea5da13ad9e8de04fa7c99bf2f30cf26ac2e5c47da";
 
-    const collectionCreateAuthorityCap = "0x6cee69491cb9f15562999c7914310eccc6665790d670a9f770c2268ebcd1cd88";
+    const collectionCreateAuthorityCap = "0x8c650c85062757e72d88b56c7ad1dfbfdec9c15a906cd8d11e25fea78826599a";
 
-    const mintCapAddress = "0xc4b4f84c9f052e5c476105822b70f8f6789424081b1a1079cdaf1aef8cf382e2";
+    const mintCapAddress = "0xf54d20a6524cd28b4fa7d6e269adfc52dcfe633013fbd4a63cffe5ccdccb2f60";
 
-    const collectionConfigAddress = "0x38540ab1e48832afbaafc2f1c04210833cef93315eaddd3cc1e250260427772b";
+    const collectionConfigAddress = "0xec2d5e7951775ed615c4189e62ee17b79e5240f19d08dd5449b4bab97bb9d2cf";
 
     const nftImageUrl = "https://zwyk5xu3kq2sbn6hxhiw4txnbu6bhb5j5bnj73m7a4jees36uuda.arweave.net/zbCu3ptUNSC3x7nRbk7tDTwTh6noWp_tnwcSQkt-pQY";
 
@@ -75,7 +74,7 @@ let assetMintingLib: AssetMintingLib;
 
     await provider.getRpcApiVersion();
 
-    assetMintingLib = new AssetMintingLib(packageAddress, provider);
+    assetMintingLib = new AssetMintingLib(assetMintingPublishedAtAddress, assetMintingPackageAddress, obNftProtocolPublishedAtAddress, obNftProtocolPackageAddress, provider);
 
     // await requestSuiFromFaucet(OwnerKeypair.getPublicKey().toSuiAddress());
     // await requestSuiFromFaucet(CollectionCreateAuthorityKeypair.getPublicKey().toSuiAddress());
@@ -96,6 +95,9 @@ let assetMintingLib: AssetMintingLib;
 
     // await createCollectionCreateAuthorityCap(OwnerSigner, FeePayerSigner, adminCapAddress, CollectionCreateAuthorityKeypair.getPublicKey().toSuiAddress());
 
+    // const collectionCreateAuthorityCaps = await assetMintingLib.getCollectionCreateAuthorityCapObject("4Kzj9HskCYYuu8Liu4qMd4nA3Wgpcu4rcU7YFVnWfzFP");
+    // console.log(collectionCreateAuthorityCaps);
+
     // await createCollection(CollectionCreateAuthoritySigner, FeePayerSigner, collectionCreateAuthorityCap, publicKeyHex,
     //     UpdateAuthorityKeypair.getPublicKey().toSuiAddress(), false, [3], NFTMintCapKeypair.getPublicKey().toSuiAddress(), "Bilal", "Bilal Collection",
     //     [
@@ -104,10 +106,22 @@ let assetMintingLib: AssetMintingLib;
     //
     //     ]);
 
-    // await mintNft(NFTMintCapKeypairSigner, FeePayerSigner, mintCapAddress, collectionConfigAddress, UserKeypair.getPublicKey().toSuiAddress(),
-    //     "BNFT#2", "BNFT DESCRIPTION", nftImageUrl, ["age", "color"], ["2", "red"], [salt], [sigHash], packageAddress);
+    // const collectionObjects = await assetMintingLib.getCollectionObject("5DuwLPfEVjMWoRwSvjwm1dJ8zAbVscC9KZpLCF5j5R6Y");
+    // console.log(collectionObjects);
 
+    // const mintCapObjects = await assetMintingLib.getMintCapObject("5DuwLPfEVjMWoRwSvjwm1dJ8zAbVscC9KZpLCF5j5R6Y");
+    // console.log(mintCapObjects);
+
+    // const collectionConfigObjects = await assetMintingLib.getCollectionConfigObject("5DuwLPfEVjMWoRwSvjwm1dJ8zAbVscC9KZpLCF5j5R6Y");
+    // console.log(collectionConfigObjects);
+
+    // await mintNft(NFTMintCapKeypairSigner, FeePayerSigner, mintCapAddress, collectionConfigAddress, UserKeypair.getPublicKey().toSuiAddress(),
+    //     "BNFT#2", "BNFT DESCRIPTION", nftImageUrl, ["age", "color"], ["2", "red"], [salt], [sigHash]);
+
+    // const nftDataObjects = await assetMintingLib.getNFTDataObject("ASnav4gx5k8pT5woMBYzsr3xzSzdFXYtUmiSr3KsNo5u");
+    // console.log(nftDataObjects);
 })();
+
 
 async function transferObject(signer: RawSigner, objectId: string, newOwner: string) {
     const tx = new TransactionBlock();
@@ -157,7 +171,7 @@ async function createCollection(collectionCreateAuthoritySigner: RawSigner, feeS
 }
 
 async function mintNft(nftMintCapSigner: RawSigner, feeSigner: RawSigner, mintCapAddress: string, collectionConfigAddress: string, nftReceiverAddress: string,
-                       nftName: string, nftDescription: string, nftUrl: string, aKeys: any, aValues: any, salt: any, signature: any, packageAddress: string) {
+                       nftName: string, nftDescription: string, nftUrl: string, aKeys: any, aValues: any, salt: any, signature: any) {
 
 
     const tx = await assetMintingLib.mintNftTransaction(mintCapAddress, collectionConfigAddress, nftReceiverAddress, nftName, nftDescription, nftUrl, aKeys, aKeys, salt, signature,

@@ -20,6 +20,6 @@
   "dependencies": {
     "@mysten/sui.js": "0.34.0",
     "keccak256": "1.0.6",
-    "@mirrorworld/sui.assetminting": "0.1.7"
+    "@mirrorworld/sui.assetminting": "0.1.12"
   }
 }
